@@ -8,10 +8,11 @@ from tinydb import TinyDB
 
 app = Flask(__name__)
 app.config.from_json('../h42auth-config.json')
+app.config['SESSION_FILE_DIR'] = 'data/flask_session'
 Bootstrap(app)
 Session(app)
 CORS(app)
 login = LoginManager(app)
-tydb = TinyDB('h24auth-data.db')
+tydb = TinyDB('data/h42auth-data.db')
 
 from h42auth import routes, user, forms
