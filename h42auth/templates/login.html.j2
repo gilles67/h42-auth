@@ -1,0 +1,31 @@
+{% extends "base.html.j2" %}
+
+{% block body %}
+<div class="container-fluid text-center">
+  <h1>Sign In</h1>
+  <form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+      {{ form.username.label }}<br>
+      {{ form.username(size=32) }}
+    </p>
+    <p>
+      {{ form.password.label }}<br>
+      {{ form.password(size=32) }}
+    </p>
+    <p>{{ form.submit() }}</p>
+  </form>
+
+  {% if forward  %}
+  <div>
+    <div>
+      <p>
+        <i class="fas fa-server"></i> Server Id : {{ forward.server }} <br />
+        <i class="fas fa-globe"></i> Url : {{ forward.url }}
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

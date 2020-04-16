@@ -1,0 +1,5 @@
+{
+  "SECRET_KEY": "helloworld",
+  "SESSION_TYPE": "filesystem",
+  "SO_DOMAIN": "h42.link"
+}

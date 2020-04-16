@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html class="h-100" lang="en">
+  <head>
+      <title>{{ title }} | Auth </title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='css/fontawesome.min.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='css/h42auth.css') }}" rel="stylesheet">
+  </head>
+  <body class="d-flex flex-column h-100">
+    {% block body %}
+    {% endblock %}
+    <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='js/socketio-2.2.0.min.js') }}"></script> -->
+    <!-- <script src="{{ url_for('static', filename='js/h42auth.js') }}"></script> -->
+    {% block scripts %}
+    {% endblock %}
+  </body>
+</html>
