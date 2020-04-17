@@ -30,7 +30,7 @@ def auth_login():
     if current_user.is_authenticated:
         if fa:
             return redirect(fa.url)
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     loform = LoginForm()
     if loform.validate_on_submit():
         user = User.findUserByName(loform.username.data)
