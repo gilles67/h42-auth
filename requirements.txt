@@ -1,0 +1,11 @@
+werkzeug==0.16.0
+flask
+flask-bootstrap
+flask-socketio
+flask-login
+flask-session
+flask-cors
+flask-wtf
+flask-pymongo
+gunicorn
+eventlet
