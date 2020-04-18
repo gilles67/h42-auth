@@ -128,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data/h42auth-data.db
+data/h42auth-*.db
 data/flask_session/

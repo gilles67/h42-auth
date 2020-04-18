@@ -3,57 +3,22 @@ from uuid import uuid4
 from tinydb import TinyDB, Query
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-from h42auth import app, tydb, login
+from h42auth import app, mongo, login
 
-SO_USER = 1
-
-class SecurityObject:
-    uid = None
-    tio = None
+class User(UserMixin):
     __new = False
+    uid = None
+    username = None
+    domain = None
+    password = None
+
     def __init__(self,data=None):
         if data:
             self.load(data)
         else:
             self.__new = True
             self.uid = str(uuid4())
-
-    def view(self):
-        print(self.__dict__)
-
-    def save(self):
-        data = dict()
-        data['uid'] = self.uid
-        data['tio'] = self.tio
-        if self.tio == SO_USER:
-            data['username'] = self.username
-            data['domain'] = self.domain
-            data['password'] = self.password
-        if self.__new:
-            tydb.insert(data)
-            self.__new = False
-        else:
-            q = Query()
-            tydb.update(data,(q.uid == self.uid) & (q.tio == self.tio))
-
-    def load(self, data):
-        self.__new = False
-        self.uid = data['uid']
-        self.tio = data['tio']
-        if self.tio == SO_USER:
-            self.username = data['username']
-            self.domain = data['domain']
-            self.password = data['password']
-
-class User(UserMixin, SecurityObject):
-    username = None
-    domain = None
-    password = None
-
-    def __init__(self,data=None):
-        super(User, self).__init__(data)
-        self.tio = SO_USER
-        self.domain = app.config['SO_DOMAIN']
+            self.domain = app.config['SO_DOMAIN']
 
     def set_password(self, password):
         self.password = generate_password_hash(password, method='pbkdf2:sha512', salt_length=16)
@@ -64,17 +29,38 @@ class User(UserMixin, SecurityObject):
     def get_id(self):
         return self.uid
 
+    def view(self):
+        print(self.__dict__)
+
+    def save(self):
+        data = dict()
+        data['_id'] = self.uid
+        data['uid'] = self.uid
+        data['username'] = self.username
+        data['domain'] = self.domain
+        data['password'] = self.password
+        if self.__new:
+            mongo.cx.h42auth.users.insert_one(data)
+            self.__new = False
+        else:
+            mongo.cx.h42auth.users.update_one({'_id': self.uid}, data)
+
+    def load(self, data):
+        self.__new = False
+        self.uid = data['uid']
+        self.username = data['username']
+        self.domain = data['domain']
+        self.password = data['password']
+
     @classmethod
     def findUser(cls, id):
-        q = Query()
-        data = tydb.get((q.uid == id) & (q.tio == SO_USER))
+        data = mongo.cx.h42auth.users.find_one({'_id': id})
         if data:
             return User(data)
         return None
 
     def findUserByName(name, domain=app.config['SO_DOMAIN']):
-        q = Query()
-        data = tydb.get((q.username == name) & (q.domain == domain) & (q.tio == SO_USER))
+        data = mongo.cx.h42auth.users.find_one({'username': name, 'domain': domain })
         if data:
             return User(data)
         return None
@@ -87,7 +73,6 @@ def load_user(id):
 @app.cli.command("create-user")
 @click.argument("name")
 def create_user(name):
-    q = Query()
     user = User.findUserByName(name)
     if user:
         user.view()

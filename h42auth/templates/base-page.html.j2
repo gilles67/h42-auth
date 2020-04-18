@@ -1,0 +1,103 @@
+{% extends "base-html.html.j2" %}
+
+{% block html %}
+
+<nav class="navbar navbar-expand-md navbar-dark bg-header">
+  <a class="navbar-brand" href="{{ url_for('home') }}">H42 Auth</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#h42authNavHeader" aria-controls="h42authNavHeader" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="h42authNavHeader">
+    <ul class="navbar-nav mr-auto">
+    </ul>
+    <ul class="navbar-nav">
+      {% if user.is_authenticated %}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="h42navdropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-user"></i> {{ user.username }}
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown01">
+          <a class="dropdown-item" href="#"><i class="fas fa-cogs"></i> Settings</a>
+          <a class="dropdown-item" href="#"><i class="fas fa-key"></i> Change Password</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{{ url_for('auth_logout') }}"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+        </div>
+      </li>
+      {% else %}
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('auth_login') }}"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+
+<div class="container-fluid">
+
+{% if user.is_authenticated %}
+
+<div class="row min-vh-100">
+  <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+    <div class="sidebar-sticky">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">
+            <span data-feather="home"></span>
+            Dashboard <span class="sr-only">(current)</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% if category == 'error' %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% else %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h1 class="h2">{{ title }}</h1>
+    </div>
+    <div class="container-fluid">
+      {% block body %}{% endblock %}
+    </div>
+  </main>
+</div>
+
+{% else %}
+<main role="main" class="mt-5">
+  <div class="jumbotron shadow p-3 mb-5 rounded container">
+    <div class="row">
+      <div class="col">
+        <img class="w-100"  src="{{ url_for('static', filename='img/logo.png')}}" alt="H42 Auth" />
+      </div>
+      <div class="col-lg-9">
+        <h1>Welcome to H42 Auth Service</h1>
+        <p class="lead">  .</p>
+        <a class="btn btn-lg btn-primary" href="{{ url_for('auth_login') }}" role="button"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+      </div>
+    </div>
+  </div>
+</main>
+{% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+.bg-header {
+	background-color: #00BC8D !important;
+}
+
+.bg-main {
+  background-image: url("../img/bgh42auth.jpg");
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  background-size: 35%;
+}
