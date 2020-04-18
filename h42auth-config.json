@@ -1,5 +1,5 @@
 {
   "SECRET_KEY": "helloworld",
-  "SESSION_TYPE": "filesystem",
-  "SO_DOMAIN": "h42.link"
+  "SO_DOMAIN": "h42.link",
+  "MONGO_URI": "mongodb://root:mysupersecret@authdb01:27017/"
 }
