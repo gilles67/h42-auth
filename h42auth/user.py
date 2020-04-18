@@ -1,6 +1,5 @@
 import click
 from uuid import uuid4
-from tinydb import TinyDB, Query
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from h42auth import app, mongo, login

@@ -2,8 +2,6 @@ import json
 import base64
 from datetime import datetime, timedelta
 from uuid import uuid4
-#from tinydb import TinyDB, Query
-#from h42auth import app, fadb
 from h42auth import app, mongo
 
 class ForwardAuth:
