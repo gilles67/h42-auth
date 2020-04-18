@@ -1,3 +1,4 @@
+import logging
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
@@ -16,5 +17,11 @@ Session(app)
 CORS(app)
 mongo = PyMongo(app, connect=True)
 login = LoginManager(app)
+
+gunicorn_logger = logging.getLogger('gunicorn.error')
+if gunicorn_logger:
+  app.logger.handlers = gunicorn_logger.handlers
+  app.logger.setLevel(gunicorn_logger.level)
+  app.logger.info("Enable Gunicorn log forward form Flask app")
 
 from h42auth import routes, user, forms, filters
