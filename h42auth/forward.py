@@ -44,6 +44,7 @@ class ForwardAuth:
         self.souid = user.uid
 
     def check_headers(self, headers):
+        app.logger.info(str(headers))
         self.server = headers['X-Forwarded-Server']
         if headers.has_key('X-Forwarded-Host'):
             self.host = headers['X-Forwarded-Host']

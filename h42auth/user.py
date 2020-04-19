@@ -33,8 +33,9 @@ class User(UserMixin):
 
     def save(self):
         data = dict()
-        data['_id'] = self.uid
-        data['uid'] = self.uid
+        if self.__new:
+            data['_id'] = self.uid
+            data['uid'] = self.uid
         data['username'] = self.username
         data['domain'] = self.domain
         data['password'] = self.password
@@ -42,7 +43,7 @@ class User(UserMixin):
             mongo.cx.h42auth.users.insert_one(data)
             self.__new = False
         else:
-            mongo.cx.h42auth.users.update_one({'_id': self.uid}, data)
+            mongo.cx.h42auth.users.update_one({'_id': self.uid}, { "$set" : data})
 
     def load(self, data):
         self.__new = False

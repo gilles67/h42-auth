@@ -2,7 +2,7 @@ from flask import flash, redirect, render_template, url_for, request, session, m
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_cors import cross_origin
 from h42auth import app, forward
-from h42auth.forms import LoginForm
+from h42auth.forms import LoginForm, PasswordChange
 from h42auth.user import User
 from h42auth.forward import ForwardAuth
 
@@ -21,9 +21,32 @@ def home():
         fasessions = ForwardAuth.get_user_sessions(current_user)
     return render_template('home.html.j2', title=title, user=current_user, fasessions=fasessions)
 
-@app.route('/register')
+@app.route('/user/register')
+@login_required
 def register_start():
     return redirect(url_for('home'))
+
+
+@app.route('/user/password', methods=['GET', 'POST'])
+@login_required
+def user_password():
+    passform = PasswordChange()
+    if passform.validate_on_submit():
+        if not current_user.check_password(passform.password_old.data):
+            flash('Wrong old password', 'error')
+            return redirect(url_for('user_password'))
+        if not passform.password_new.data == passform.password_check.data :
+             flash('The new password and the check not th same', 'error')
+             return redirect(url_for('user_password'))
+        if passform.password_old.data == passform.password_new.data:
+             flash('The new password and the old one is the same, seriously ? ', 'error')
+             return redirect(url_for('user_password'))
+        current_user.set_password(passform.password_new.data)
+        current_user.save()
+        flash('Password change successfully, please sign in with the new password')
+        return redirect(url_for('auth_logout'))
+
+    return render_template('change_password.html.j2', title='Change password', user=current_user, form=passform)
 
 @cross_origin(supports_credentials=True)
 @app.route('/auth/login', methods=['GET', 'POST'])

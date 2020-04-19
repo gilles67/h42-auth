@@ -1,5 +1,4 @@
 import sys
-import logging
 import os.path
 app_path = os.path.abspath(os.path.join(os.path.basename(__file__), '..'))
 sys.path.append(app_path)
