@@ -93,16 +93,23 @@ def forward_auth():
         if '_fa_token' in request.cookies:
             fa = ForwardAuth.find_auth(request.cookies['_fa_token'])
             if fa:
-                fa.check_headers(request.headers)
+                #fa.check_headers(request.headers)
                 if fa.is_authenticated:
                     response = make_response("OK")
+                    response.set_cookie('_fa_token', fa.token, expires=fa.expires)
                     response.headers['X-Forward-Auth-User'] = fa.user
                     #response.delete_cookie('_fa_token')
                     #fa.destroy()
                     return response
+        # Prepare new session
         fa = ForwardAuth()
         fa.check_headers(request.headers)
         fa.save()
+
+        #Clean sessions
+        ForwardAuth.clean_session()
+
+        #Redirect to login
         response = redirect(url_for('auth_login', forward=fa.token))
         response.set_cookie('_fa_token', fa.token, expires=fa.expires)
         return response

@@ -2,6 +2,8 @@ import json
 import base64
 from datetime import datetime, timedelta
 from uuid import uuid4
+from urllib.parse import urlparse
+
 from h42auth import app, mongo
 
 class ForwardAuth:
@@ -19,6 +21,7 @@ class ForwardAuth:
     souid = None
     is_authenticated = False
     expires = None
+    auth_expires = None
 
     def __init__(self, data=None):
         if data:
@@ -26,7 +29,8 @@ class ForwardAuth:
         else:
             self.__new = True
             self.token = str(uuid4())
-            self.expires = datetime.now() + timedelta(hours=2)
+            self.expires = datetime.utcnow() + timedelta(hours=2)
+            self.auth_expires = datetime.utcnow() + timedelta(minutes=5)
 
     def generate_url(self):
         if (self.protocol == 'https') & (self.port == '443'):
@@ -42,22 +46,36 @@ class ForwardAuth:
         self.__user = user
         self.user = user.username
         self.souid = user.uid
+        self.auth_expires = datetime.utcnow() + timedelta(hours=2)
 
     def check_headers(self, headers):
         app.logger.info(str(headers))
+        print (headers)
+        if headers.has_key('Referer'):
+            url = urlparse(headers['Referer'])
+            self.url = headers['Referer']
+            if url.scheme:
+                self.protocol = url.scheme
+            if url.port:
+                self.port = url.port
+            if url.hostname:
+                self.host = url.hostname
+            if url.path:
+                self.uri = url.path
+        else:
+            if headers.has_key('X-Forwarded-Host'):
+                self.host = headers['X-Forwarded-Host']
+            if headers.has_key('X-Forwarded-Proto'):
+                self.protocol = headers['X-Forwarded-Proto']
+            if headers.has_key('X-Forwarded-Port'):
+                self.port = headers['X-Forwarded-Port']
+            if headers.has_key('X-Forwarded-Uri'):
+                self.uri = headers['X-Forwarded-Uri']
+            self.generate_url()
+
         self.server = headers['X-Forwarded-Server']
-        if headers.has_key('X-Forwarded-Host'):
-            self.host = headers['X-Forwarded-Host']
         if headers.has_key('X-Forwarded-Method'):
             self.method = headers['X-Forwarded-Method']
-        if headers.has_key('X-Forwarded-Proto'):
-            self.protocol = headers['X-Forwarded-Proto']
-        if headers.has_key('X-Forwarded-Port'):
-            self.port = headers['X-Forwarded-Port']
-        if headers.has_key('X-Forwarded-Uri'):
-            self.uri = headers['X-Forwarded-Uri']
-        self.generate_url()
-
 
     def save(self):
         data = dict()
@@ -73,7 +91,8 @@ class ForwardAuth:
         data['url'] = self.url
         data['user'] = self.user
         data['is_authenticated'] = self.is_authenticated
-        data['expires'] = self.expires #.timestamp()
+        data['expires'] = self.expires
+        data['auth_expires'] = self.auth_expires
         data['souid'] = self.souid
         if self.__new:
             mongo.cx.h42auth.forward_sessions.insert_one(data)
@@ -93,7 +112,8 @@ class ForwardAuth:
         self.url = data['url']
         self.user = data['user']
         self.is_authenticated = data['is_authenticated']
-        self.expires = data['expires'] #datetime.fromtimestamp()
+        self.expires = data['expires']
+        self.auth_expires = data['auth_expires']
         self.souid = data['souid']
 
     def destroy(self):
@@ -112,7 +132,8 @@ class ForwardAuth:
 
     @classmethod
     def clean_session(cls):
-        mongo.cx.h42auth.forward_sessions.delete_many({'expires':{'$lt':datetime.now()}})
+        mongo.cx.h42auth.forward_sessions.delete_many({'expires':{'$lt':datetime.utcnow()}})
+        mongo.cx.h42auth.forward_sessions.delete_many({'auth_expires':{'$lt':datetime.utcnow()}})
 
     @classmethod
     def terminate_session(cls, token):
