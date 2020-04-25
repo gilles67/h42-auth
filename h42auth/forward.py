@@ -51,7 +51,10 @@ class ForwardAuth:
     def check_headers(self, headers):
         app.logger.info(str(headers))
         print (headers)
-        if headers.has_key('Referer'):
+        if headers.has_key('X-Auth-Service') :
+            self.url = 'https://{}/'.format(headers['X-Auth-Service'])
+            self.host = headers['X-Auth-Service']
+        elif headers.has_key('Referer'):
             url = urlparse(headers['Referer'])
             self.url = headers['Referer']
             if url.scheme:
@@ -62,6 +65,8 @@ class ForwardAuth:
                 self.host = url.hostname
             if url.path:
                 self.uri = url.path
+            else:
+                self.uri = "/"
         else:
             if headers.has_key('X-Forwarded-Host'):
                 self.host = headers['X-Forwarded-Host']
@@ -71,6 +76,8 @@ class ForwardAuth:
                 self.port = headers['X-Forwarded-Port']
             if headers.has_key('X-Forwarded-Uri'):
                 self.uri = headers['X-Forwarded-Uri']
+            else:
+                self.uri = "/"
             self.generate_url()
 
         self.server = headers['X-Forwarded-Server']
@@ -113,7 +120,10 @@ class ForwardAuth:
         self.user = data['user']
         self.is_authenticated = data['is_authenticated']
         self.expires = data['expires']
-        self.auth_expires = data['auth_expires']
+        if 'auth_expires' in data:
+            self.auth_expires = data['auth_expires']
+        else:
+            self.auth_expires = self.expires
         self.souid = data['souid']
 
     def destroy(self):
