@@ -110,7 +110,7 @@ def forward_auth():
         ForwardAuth.clean_session()
 
         #Redirect to login
-        response = redirect(url_for('auth_login', forward=fa.token))
+        response = redirect(url_for('auth_login', forward=fa.token, _external=True))
         response.set_cookie('_fa_token', fa.token, expires=fa.expires)
         return response
     else:
