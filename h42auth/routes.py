@@ -1,6 +1,7 @@
 from flask import flash, redirect, render_template, url_for, request, session, make_response
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_cors import cross_origin
+from urllib.parse import urlparse
 from h42auth import app, forward
 from h42auth.forms import LoginForm, PasswordChange
 from h42auth.user import User
@@ -125,14 +126,13 @@ def forward_auth():
         ForwardAuth.clean_session()
 
         #Redirect to login
-<<<<<<< HEAD
-        response = redirect(url_for('auth_login', forward=fa.token, _external=True))
-=======
+
+        red_url = url_for('auth_login', forward=fa.token, _external=True)
+        print(red_url)
         if app.config['SITE_URL']:
-            response = redirect("%s%s" % ( app.config['SITE_URL'], url_for('auth_login', forward=fa.token)))
-        else:
-            response = redirect(url_for('auth_login', forward=fa.token))
->>>>>>> e9136bbd6e95a0c9a172a88557f5bb0086263641
+            site_url = urlparse(app.config['SITE_URL'])
+            red_url = "%s://%s%s" % (site_url.scheme, site_url.netloc, url_for('auth_login', forward=fa.token))
+        response = redirect(red_url)
         response.set_cookie('_fa_token', fa.token, expires=fa.expires)
         return response
     else:
