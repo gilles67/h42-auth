@@ -1,0 +1,42 @@
+{% extends "base-html.html.j2" %}
+
+{% block html %}
+
+
+<button id="client_enroll_btn"  > Enroll </button>
+
+
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+
+$(document).ready(function() {
+  $("#client_enroll_btn").click(function(event) {
+
+    if(localStorage.h42_my_enroll_device_privatekey) {
+      privKey = JSON.parse(localStorage.getItem('h42_my_enroll_device_privatekey'))
+      //keyPair = window.crypto.subtle.importKey("jwk",{ name: "ECDSA", namedCurve: "P-521" }, privKey, true, ["sign"])
+      keyPair = window.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-521" }, true, ["sign", "verify"]).then((keyPair) => {
+
+      })
+
+    }else {
+      keyPair = window.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-521" }, true, ["sign", "verify"]).then((keyPair) => {
+        privKey = window.crypto.subtle.exportKey("jwk", keyPair.privateKey).then((privKey) => {
+          console.log(privKey)
+          localStorage.setItem('h42_my_enroll_device_privatekey', JSON.stringify(privKey))
+        })
+      })
+    }
+  })
+})
+
+
+</script>
+
+{% endblock %}

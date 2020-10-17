@@ -26,6 +26,21 @@ def home():
 def register_start():
     return redirect(url_for('home'))
 
+@app.route('/user/enroll')
+def user_enroll_device():
+
+
+
+
+
+    fasessions = None
+    title = "Home"
+    if current_user.is_authenticated:
+        title = "Dashboard"
+        fasessions = ForwardAuth.get_user_sessions(current_user)
+    return render_template('client_enroll.html.j2', title=title, user=current_user, fasessions=fasessions)
+
+
 
 @app.route('/user/password', methods=['GET', 'POST'])
 @login_required
