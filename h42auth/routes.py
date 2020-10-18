@@ -126,14 +126,13 @@ def forward_auth():
         ForwardAuth.clean_session()
 
         #Redirect to login
-
         red_url = url_for('auth_login', forward=fa.token, _external=True)
-        print(red_url)
         if app.config['SITE_URL']:
             site_url = urlparse(app.config['SITE_URL'])
             red_url = "%s://%s%s" % (site_url.scheme, site_url.netloc, url_for('auth_login', forward=fa.token))
         response = redirect(red_url)
         response.set_cookie('_fa_token', fa.token, expires=fa.expires)
+        
         return response
     else:
         return redirect(url_for('home'))
