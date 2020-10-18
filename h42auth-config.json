@@ -1,5 +1,5 @@
 {
   "SECRET_KEY": "helloworld",
   "SO_DOMAIN": "h42.link",
-  "MONGO_URI": "mongodb://root:mysupersecret@authdb01:27017/"
+  "MONGO_URI": "mongodb://127.0.0.1:27017/"
 }
